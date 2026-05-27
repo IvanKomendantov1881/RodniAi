@@ -1,8 +1,0 @@
-.env
-storage/
-__pycache__/
-*.pyc
-bin/
-vendor/
-.idea/
-.vscode/
