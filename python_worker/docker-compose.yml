@@ -1,0 +1,26 @@
+name: english_bot
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: english_bot_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: english_bot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: english_bot_rmq
+    restart: always
+    ports:
+      - "5672:5672"   # Порт для общения Python и Go
+      - "15672:15672" # Порт для веб-интерфейса (логин/пароль: guest/guest)
+
+volumes:
+  postgres_data:
