@@ -12,7 +12,6 @@ type RabbitMQ struct {
 }
 
 func NewRabbitMQ(url string) (*RabbitMQ, error) {
-
 	conn, err := amqp.Dial(url)
 	if err != nil {
 		return nil, err
@@ -28,14 +27,12 @@ func NewRabbitMQ(url string) (*RabbitMQ, error) {
 		channel: ch,
 	}
 
-	_, err = mq.channel.QueueDeclare(
-		"tasks",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
+	_, err = mq.channel.QueueDeclare("tasks", true, false, false, false, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = mq.channel.QueueDeclare("go_results", true, false, false, false, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +46,6 @@ func (r *RabbitMQ) Close() {
 }
 
 func (r *RabbitMQ) Publish(body []byte) error {
-
 	return r.channel.PublishWithContext(
 		context.Background(),
 		"",
@@ -60,5 +56,17 @@ func (r *RabbitMQ) Publish(body []byte) error {
 			ContentType: "application/json",
 			Body:        body,
 		},
+	)
+}
+
+func (r *RabbitMQ) Consume() (<-chan amqp.Delivery, error) {
+	return r.channel.Consume(
+		"go_results",
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 }

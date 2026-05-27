@@ -1,17 +1,19 @@
 import asyncio
 import json
 import aio_pika
+import os
 from sqlalchemy import select, delete
 
 from database import init_db, async_session, UserWord
 from llm_service import get_word_data_from_api
 
-RABBITMQ_URL = "amqp://guest:guest@localhost/"
-QUEUE_IN = "python_tasks"
+RABBITMQ_URL = os.getenv("RABBIT_URL", "amqp://guest:guest@rabbitmq/")
+QUEUE_IN = "tasks"
 QUEUE_OUT = "go_results"
 
 async def process_task(message_body: dict) -> dict:
-    action = message_body.get("action")
+    payload = message_body.get("payload", {})
+    action = payload.get("action")
     user_id = message_body.get("user_id")
 
     response = {"action": action, "user_id": user_id, "status": "error", "data": None}
@@ -27,7 +29,7 @@ async def process_task(message_body: dict) -> dict:
         return response
 
     if action == "add_word":
-        word_raw = message_body.get("word", "")
+        word_raw = payload.get("word", "")
         if not isinstance(word_raw, str) or not word_raw.strip():
             response["status"] = "invalid_args"
             response["data"] = "missing_or_invalid_word"
@@ -139,45 +141,43 @@ async def main():
     async with connection:
         channel = await connection.channel()
         
-        await channel.declare_queue(QUEUE_IN, durable=True)
+        queue_in = await channel.declare_queue(QUEUE_IN, durable=True)
         await channel.declare_queue(QUEUE_OUT, durable=True)
         
         print(f"Воркер запущен! Ожидание задач в очереди '{QUEUE_IN}'...")
         
-        async with channel.default_exchange.connection:
-            queue = await channel.get_queue(QUEUE_IN)
-            async with queue.iterator() as queue_iter:
-                async for message in queue_iter:
-                    async with message.process():
-                        try:
-                            incoming_data = json.loads(message.body.decode())
-                        except Exception as e:
-                            print(f"Invalid JSON received: {e}")
-                            error_resp = {"action": None, "user_id": None, "status": "invalid_json", "data": str(e)}
-                            await channel.default_exchange.publish(
-                                aio_pika.Message(body=json.dumps(error_resp).encode()),
-                                routing_key=QUEUE_OUT,
-                            )
-                            continue
-
-                        print(f"Получена задача: {incoming_data}")
-
-                        try:
-                            result_data = await process_task(incoming_data)
-                        except Exception as e:
-                            print(f"Error processing task: {e}")
-                            result_data = {
-                                "action": incoming_data.get("action"),
-                                "user_id": incoming_data.get("user_id"),
-                                "status": "processing_error",
-                                "data": str(e),
-                            }
-                        
+        async with queue_in.iterator() as queue_iter:
+            async for message in queue_iter:
+                async with message.process():
+                    try:
+                        incoming_data = json.loads(message.body.decode())
+                    except Exception as e:
+                        print(f"Invalid JSON received: {e}")
+                        error_resp = {"action": None, "user_id": None, "status": "invalid_json", "data": str(e)}
                         await channel.default_exchange.publish(
-                            aio_pika.Message(body=json.dumps(result_data).encode()),
+                            aio_pika.Message(body=json.dumps(error_resp).encode()),
                             routing_key=QUEUE_OUT,
                         )
-                        print(f"Отправлен результат: {result_data}")
+                        continue
+
+                    print(f"Получена задача: {incoming_data}")
+
+                    try:
+                        result_data = await process_task(incoming_data)
+                    except Exception as e:
+                        print(f"Error processing task: {e}")
+                        result_data = {
+                            "action": incoming_data.get("action"),
+                            "user_id": incoming_data.get("user_id"),
+                            "status": "processing_error",
+                            "data": str(e),
+                        }
+                    
+                    await channel.default_exchange.publish(
+                        aio_pika.Message(body=json.dumps(result_data).encode()),
+                        routing_key=QUEUE_OUT,
+                    )
+                    print(f"Отправлен результат: {result_data}")
 
 if __name__ == "__main__":
     asyncio.run(main())

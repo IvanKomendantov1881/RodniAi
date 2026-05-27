@@ -66,24 +66,93 @@ func (d *Dispatcher) Handle(update tgbotapi.Update) {
 
 	// /english
 	if strings.HasPrefix(msg.Text, "/english") {
+		parts := strings.Split(msg.Text, " ")
+		if len(parts) < 2 {
+			response := tgbotapi.NewMessage(
+				msg.Chat.ID,
+				"❌ Использование: /english word",
+			)
 
+			d.bot.Send(response)
+			return
+		}
+
+		word := parts[1]
 		task := queue.TaskMessage{
 			Type:   "english",
 			UserID: msg.From.ID,
 			Payload: map[string]any{
-				"text": msg.Text,
+				"action": "add_word",
+				"word":   word,
 			},
 		}
 
 		body, _ := json.Marshal(task)
 
-		d.queue.Publish(body)
+		err := d.queue.Publish(body)
+
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
 		response := tgbotapi.NewMessage(
 			msg.Chat.ID,
-			"🇬🇧 Английское слово отправлено в обработку",
+			"🇬🇧 Слово отправлено в обработку",
 		)
 
 		d.bot.Send(response)
+
+		return
+	}
+	// /dictionary
+	if strings.HasPrefix(msg.Text, "/dictionary") {
+		task := queue.TaskMessage{
+			Type:   "english",
+			UserID: msg.From.ID,
+			Payload: map[string]any{
+				"action": "get_dictionary",
+			},
+		}
+		body, _ := json.Marshal(task)
+		d.queue.Publish(body)
+		d.bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "📖 Загружаю словарь..."))
+		return
+	}
+
+	// /delete 1
+	if strings.HasPrefix(msg.Text, "/delete ") {
+		parts := strings.Split(msg.Text, " ")
+		if len(parts) < 2 {
+			d.bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "❌ Использование: /delete 1"))
+			return
+		}
+		task := queue.TaskMessage{
+			Type:   "english",
+			UserID: msg.From.ID,
+			Payload: map[string]any{
+				"action":      "delete_word",
+				"word_number": parts[1],
+			},
+		}
+		body, _ := json.Marshal(task)
+		d.queue.Publish(body)
+		d.bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "🗑 Удаляю слово..."))
+		return
+	}
+
+	// /clear
+	if strings.HasPrefix(msg.Text, "/clear") {
+		task := queue.TaskMessage{
+			Type:   "english",
+			UserID: msg.From.ID,
+			Payload: map[string]any{
+				"action": "delete_all",
+			},
+		}
+		body, _ := json.Marshal(task)
+		d.queue.Publish(body)
+		d.bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "🗑 Очищаю словарь..."))
 		return
 	}
 

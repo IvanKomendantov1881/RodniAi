@@ -1,34 +1,74 @@
-version: '3.9'
+name: learning_bot
 
 services:
-    rabbitmq:
-      image: rabbitmq:3-management
-      container_name: learning-bot-rabbit
+  db:
+    image: postgres:16
+    container_name: learning_bot_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: learning_bot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-      ports:
-        - "5672:5672"
-        - "15672:15672"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: learning_bot_rmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-      environment:
-        RABBITMQ_DEFAULT_USER: guest
-        RABBITMQ_DEFAULT_PASS: guest
+  go_bot:
+    build: .
+    container_name: learning_bot_go
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_started
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: learning_bot
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672/
+    volumes:
+      - ./storage:/app/storage
 
-    postgres:
-      image: postgres:16
-      container_name: learning-bot-db
-
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: learning_bot
-
-      ports:
-        - "5432:5432"
-
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-    
+  python_worker:
+    build: ./python_worker
+    container_name: learning_bot_python
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_started
+    environment:
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672/
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: learning_bot
 
 volumes:
   postgres_data:
-
+  rabbitmq_data:
