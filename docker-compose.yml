@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+    rabbitmq:
+      image: rabbitmq:3-management
+      container_name: learning-bot-rabbit
+
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+
+      environment:
+        RABBITMQ_DEFAULT_USER: guest
+        RABBITMQ_DEFAULT_PASS: guest
+
+    postgres:
+      image: postgres:16
+      container_name: learning-bot-db
+
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: learning_bot
+
+      ports:
+        - "5432:5432"
+
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+    
+
+volumes:
+  postgres_data:
+
