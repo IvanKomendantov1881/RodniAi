@@ -1,75 +1,96 @@
-# RodniAi
-RodnenkAI — AI Telegram Learning Bot
-📌 Описание проекта
+# 🤖 RodnenkAI — AI Telegram Learning Bot
 
-RodnenkAI — это интеллектуальный Telegram-бот для обучения и обработки учебных материалов с использованием микросервисной архитектуры.
+## 📌 Описание проекта
+
+**RodnenkAI** — это интеллектуальный Telegram-бот для обучения и обработки учебных материалов с использованием микросервисной архитектуры.
 
 Проект сочетает:
 
-Go backend
-Python AI workers
-RabbitMQ
-PostgreSQL
-Telegram Bot API
-AI/NLP сервисы
-🚀 Основные возможности
-📚 1. Learning Assistant
+* Go backend
+* Python AI workers
+* RabbitMQ
+* PostgreSQL
+* Telegram Bot API
+* AI/NLP сервисы
+
+---
+
+# 🚀 Основные возможности
+
+## 📚 1. Learning Assistant
 
 Пользователь может:
 
-отправить тему для изучения
-получить краткое объяснение
-получать повторные вопросы по системе интервального повторения:
-через 15 минут
-через 1 час
-через 6 часов
-через 1 день
-🎤 2. Audio Processing
+* отправить тему для изучения
+* получить краткое объяснение
+* получать повторные вопросы по системе интервального повторения:
+
+  * через 15 минут
+  * через 1 час
+  * через 6 часов
+  * через 1 день
+
+---
+
+## 🎤 2. Audio Processing
 
 Бот умеет:
 
-принимать voice messages
-принимать mp3/m4a/wav файлы
-распознавать речь
-выделять ключевые мысли
-делать summary лекций
+* принимать voice messages
+* принимать mp3/m4a/wav файлы
+* распознавать речь
+* выделять ключевые мысли
+* делать summary лекций
 
-Планируемые технологии:
+### Планируемые технологии
 
-Whisper
-Vosk
-SpeechRecognition
-ffmpeg
-📄 3. PDF Processing
+* Whisper
+* Vosk
+* SpeechRecognition
+* ffmpeg
+
+---
+
+## 📄 3. PDF Processing
 
 Бот умеет:
 
-принимать PDF-файлы
-извлекать текст
-выделять главные идеи
-использовать PDF как учебный материал
+* принимать PDF-файлы
+* извлекать текст
+* выделять главные идеи
+* использовать PDF как учебный материал
 
-Планируемые библиотеки:
+### Планируемые библиотеки
 
-PyPDF2
-pdfplumber
-pymupdf (fitz)
-🇬🇧 4. English Learning System
+* PyPDF2
+* pdfplumber
+* pymupdf (fitz)
+
+---
+
+## 🇬🇧 4. English Learning System
 
 Пользователь может:
 
-ввести английское слово
-получить определение на английском
-получить пример предложения
-сохранить слово в словарь
-просматривать словарь
-удалять слова
-очищать словарь
-🧠 Архитектура проекта
+* ввести английское слово
+* получить определение на английском
+* получить пример предложения
+* сохранить слово в словарь
+* просматривать словарь
+* удалять слова
+* очищать словарь
+
+---
+
+# 🧠 Архитектура проекта
 
 Проект построен на event-driven микросервисной архитектуре.
 
-📦 Общая схема
+---
+
+## 📦 Общая схема
+
+```text
 Telegram
    ↓
 Go Bot Gateway
@@ -87,35 +108,52 @@ RabbitMQ Results Queue
 Go Bot
    ↓
 Telegram Response
-🏗 Архитектурные принципы
-✅ Разделение ответственности
-Go отвечает за:
-Telegram API
-маршрутизацию сообщений
-загрузку файлов
-очереди
-orchestration
-Python отвечает за:
-AI/NLP
-обработку аудио
-обработку PDF
-работу со словарем
-интеграцию с LLM API
-✅ Асинхронная обработка
+```
+
+---
+
+# 🏗 Архитектурные принципы
+
+## ✅ Разделение ответственности
+
+### Go отвечает за:
+
+* Telegram API
+* маршрутизацию сообщений
+* загрузку файлов
+* очереди
+* orchestration
+
+### Python отвечает за:
+
+* AI/NLP
+* обработку аудио
+* обработку PDF
+* работу со словарем
+* интеграцию с LLM API
+
+---
+
+## ✅ Асинхронная обработка
 
 Все тяжёлые задачи выполняются через RabbitMQ:
 
-аудио
-PDF
-NLP
-AI processing
+* аудио
+* PDF
+* NLP
+* AI processing
 
 Это позволяет:
 
-не блокировать Telegram bot
-масштабировать workers
-распределять нагрузку
-📁 Структура проекта
+* не блокировать Telegram bot
+* масштабировать workers
+* распределять нагрузку
+
+---
+
+# 📁 Структура проекта
+
+```text
 project/
 │
 ├── go-bot/
@@ -147,36 +185,59 @@ project/
 ├── docker-compose.yml
 │
 └── README.md
-⚙️ Используемые технологии
-Backend
-Go
-Python
-Message Broker
-RabbitMQ
-Database
-PostgreSQL
-SQLAlchemy ORM
-Telegram
-go-telegram-bot-api
-AI/NLP
-Whisper
-Vosk
-OpenAI API
-Gemini API
-FreeLLMAPI
-PDF
-PyPDF2
-pdfplumber
-pymupdf
-Infrastructure
-Docker
-Docker Compose
-Linux VPS
-🧩 RabbitMQ Architecture
-Queue: python_tasks
+```
+
+---
+
+# ⚙️ Используемые технологии
+
+## Backend
+
+* Go
+* Python
+
+## Message Broker
+
+* RabbitMQ
+
+## Database
+
+* PostgreSQL
+* SQLAlchemy ORM
+
+## Telegram
+
+* go-telegram-bot-api
+
+## AI/NLP
+
+* Whisper
+* Vosk
+* OpenAI API
+* Gemini API
+* FreeLLMAPI
+
+## PDF
+
+* PyPDF2
+* pdfplumber
+* pymupdf
+
+## Infrastructure
+
+* Docker
+* Docker Compose
+* Linux VPS
+
+---
+
+# 🧩 RabbitMQ Architecture
+
+## Queue: `python_tasks`
 
 Go отправляет задачи:
 
+```json
 {
   "type": "english",
   "user_id": 123,
@@ -185,10 +246,15 @@ Go отправляет задачи:
     "word": "hello"
   }
 }
-Queue: go_results
+```
+
+---
+
+## Queue: `go_results`
 
 Python возвращает результаты:
 
+```json
 {
   "action": "add_word",
   "user_id": 123,
@@ -199,15 +265,25 @@ Python возвращает результаты:
     "example": "..."
   }
 }
-🗄 База данных
-PostgreSQL
+```
+
+---
+
+# 🗄 База данных
+
+## PostgreSQL
 
 Используется для:
 
-хранения словаря пользователя
-хранения учебных материалов
-хранения расписания повторений
-Таблица словаря
+* хранения словаря пользователя
+* хранения учебных материалов
+* хранения расписания повторений
+
+---
+
+## Таблица словаря
+
+```sql
 CREATE TABLE user_words (
     id SERIAL PRIMARY KEY,
     telegram_id BIGINT NOT NULL,
@@ -215,29 +291,56 @@ CREATE TABLE user_words (
     definition TEXT,
     example TEXT
 );
-🤖 Telegram Commands
-/english <word>
+```
+
+---
+
+# 🤖 Telegram Commands
+
+## `/english <word>`
 
 Добавить слово в словарь.
 
-Пример:
+### Пример
+
+```text
 /english hello
-/teach <topic>
+```
+
+---
+
+## `/teach <topic>`
 
 Начать изучение темы.
 
-Пример:
+### Пример
+
+```text
 /teach linear algebra
-🎧 Поддерживаемые форматы
-Audio
-ogg
-mp3
-wav
-m4a
-Documents
-pdf
-🔄 Workflow Examples
-Audio Pipeline
+```
+
+---
+
+# 🎧 Поддерживаемые форматы
+
+## Audio
+
+* ogg
+* mp3
+* wav
+* m4a
+
+## Documents
+
+* pdf
+
+---
+
+# 🔄 Workflow Examples
+
+## Audio Pipeline
+
+```text
 User sends audio
         ↓
 Go downloads file
@@ -253,7 +356,13 @@ Summary generation
 Result queue
         ↓
 Go sends Telegram message
-English Learning Pipeline
+```
+
+---
+
+## English Learning Pipeline
+
+```text
 /english hello
         ↓
 Go dispatcher
@@ -269,15 +378,28 @@ PostgreSQL
 Result queue
         ↓
 Telegram response
-🐳 Docker Deployment
-Запуск RabbitMQ
+```
+
+---
+
+# 🐳 Docker Deployment
+
+## Запуск RabbitMQ
+
+```bash
 docker run -d \
   --hostname rabbit \
   --name rabbitmq \
   -p 5672:5672 \
   -p 15672:15672 \
   rabbitmq:3-management
-Docker Compose
+```
+
+---
+
+## Docker Compose
+
+```yaml
 version: '3'
 
 services:
@@ -299,76 +421,111 @@ services:
 
   python-worker:
     build: ./python-services
-🌍 Deployment
+```
+
+---
+
+# 🌍 Deployment
 
 Проект планируется размещать на Linux VPS в Европе:
 
-Германия
-Нидерланды
-Финляндия
+* Германия
+* Нидерланды
+* Финляндия
 
 Это необходимо для:
 
-стабильной работы AI API
-уменьшения ограничений
-постоянной доступности бота
-🔒 Безопасность
-Все токены хранятся в .env
-API ключи не коммитятся в Git
-Используется .gitignore
-👨‍💻 Команда проекта
-Go Backend Developer
-Telegram bot
-Dispatcher
-RabbitMQ integration
-File handling
-Infrastructure
-Python AI Developer
-Audio processing
-Speech-to-text
-Summarization
-AI integrations
-Python NLP Developer
-English learning system
-PDF extraction
-Dictionary logic
-Database logic
-📈 Возможности масштабирования
+* стабильной работы AI API
+* уменьшения ограничений
+* постоянной доступности бота
+
+---
+
+# 🔒 Безопасность
+
+* Все токены хранятся в `.env`
+* API ключи не коммитятся в Git
+* Используется `.gitignore`
+
+---
+
+# 👨‍💻 Команда проекта
+
+## Go Backend Developer
+
+* Telegram bot
+* Dispatcher
+* RabbitMQ integration
+* File handling
+* Infrastructure
+
+## Python AI Developer
+
+* Audio processing
+* Speech-to-text
+* Summarization
+* AI integrations
+
+## Python NLP Developer
+
+* English learning system
+* PDF extraction
+* Dictionary logic
+* Database logic
+
+---
+
+# 📈 Возможности масштабирования
 
 Проект поддерживает:
 
-multiple workers
-distributed processing
-horizontal scaling
-cloud deployment
-🔥 Почему выбрана микросервисная архитектура
+* multiple workers
+* distributed processing
+* horizontal scaling
+* cloud deployment
+
+---
+
+# 🔥 Почему выбрана микросервисная архитектура
 
 Преимущества:
 
-независимость сервисов
-масштабируемость
-устойчивость
-асинхронная обработка
-возможность замены компонентов
-🎯 Цель проекта
+* независимость сервисов
+* масштабируемость
+* устойчивость
+* асинхронная обработка
+* возможность замены компонентов
+
+---
+
+# 🎯 Цель проекта
 
 Создать интеллектуального Telegram-ассистента для:
 
-обучения
-изучения английского языка
-обработки лекций
-анализа учебных материалов
-автоматизации обучения
-🚀 Будущие улучшения
+* обучения
+* изучения английского языка
+* обработки лекций
+* анализа учебных материалов
+* автоматизации обучения
+
+---
+
+# 🚀 Будущие улучшения
 
 Планируется добавить:
 
-Web dashboard
-User authentication
-Progress analytics
-AI-generated quizzes
-Flashcards
-Voice responses
-Docker deployment pipeline
-CI/CD
-Kubernetes support
+* Web dashboard
+* User authentication
+* Progress analytics
+* AI-generated quizzes
+* Flashcards
+* Voice responses
+* Docker deployment pipeline
+* CI/CD
+* Kubernetes support
+
+---
+
+# 📜 License
+
+MIT License
