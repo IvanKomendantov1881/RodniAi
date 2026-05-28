@@ -227,7 +227,43 @@ func (d *Dispatcher) Handle(update tgbotapi.Update) {
 		processAudio(d, msg.Document.FileID, msg.From.ID, "audio", msg.Chat.ID)
 		return
 	}
+	// /start
+	if strings.HasPrefix(msg.Text, "/start") {
+		text := `👋 Привет! Я учебный бот.
+		📚 *Английский словарь:*
+		/english word — добавить слово
+		/dictionary — показать словарь
+		/delete 1 — удалить слово по номеру
+		/clear — очистить словарь
 
+		🧠 *Обучение:*
+		/teach текст — создать карточку из текста
+		📄 Отправь PDF — разбор документа
+		🎤 Голосовое — транскрипция и анализ
+
+		ℹ️ /help — показать это меню`
+
+		d.bot.Send(tgbotapi.NewMessage(msg.Chat.ID, text))
+		return
+	}
+
+	// /help
+	if strings.HasPrefix(msg.Text, "/help") {
+		text := `📋 *Команды бота:*
+
+		/english word — добавить слово в словарь
+		/dictionary — показать все слова
+		/delete N — удалить слово под номером N
+		/clear — очистить весь словарь
+		/teach текст — анализ текста через ИИ
+		📄 PDF — отправь файл для разбора
+		🎤 Аудио — отправь голосовое для транскрипции`
+
+		response := tgbotapi.NewMessage(msg.Chat.ID, text)
+		response.ParseMode = "Markdown"
+		d.bot.Send(response)
+		return
+	}
 	// PDF
 
 	if msg.Document != nil &&

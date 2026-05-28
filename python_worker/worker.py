@@ -2,6 +2,8 @@ import asyncio
 import json
 import aio_pika
 import os
+import pipeline
+from card_generator import format_card_for_telegram
 from sqlalchemy import select, delete
 
 from database import init_db, async_session, UserWord
@@ -15,8 +17,40 @@ async def process_task(message_body: dict) -> dict:
     payload = message_body.get("payload", {})
     action = payload.get("action")
     user_id = message_body.get("user_id")
+    task_type = message_body.get("type")
 
     response = {"action": action, "user_id": user_id, "status": "error", "data": None}
+
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        response["data"] = "invalid_user_id"
+        return response
+
+    # Сначала проверяем type для pdf/audio/teach
+    if task_type == "pdf":
+        filepath = payload.get("filepath", "")
+        card, _ = await pipeline.process_pdf(filepath)
+        text = format_card_for_telegram(card)
+        response["status"] = "success"
+        response["data"] = {"text": text}
+        return response
+
+    elif task_type == "audio":
+        filepath = payload.get("filepath", "")
+        card, transcript = await pipeline.process_voice(filepath)
+        text = format_card_for_telegram(card)
+        response["status"] = "success"
+        response["data"] = {"text": text, "transcript": transcript}
+        return response
+
+    elif task_type == "teach":
+        text = payload.get("text", "")
+        card = await pipeline.process_text(text)
+        formatted = format_card_for_telegram(card)
+        response["status"] = "success"
+        response["data"] = {"text": formatted}
+        return response
 
     if not isinstance(action, str):
         response["data"] = "invalid_action"
@@ -128,7 +162,26 @@ async def process_task(message_body: dict) -> dict:
             response["data"] = "dictionary_cleared"
         except Exception as e:
             response["data"] = str(e)
+    elif action == "process_voice" or message_body.get("type") == "audio":
+        filepath = payload.get("filepath", "")
+        card, transcript = await pipeline.process_voice(filepath)
+        text = format_card_for_telegram(card)
+        response["status"] = "success"
+        response["data"] = {"text": text, "transcript": transcript}
 
+    elif message_body.get("type") == "pdf":
+        filepath = payload.get("filepath", "")
+        card, _ = await pipeline.process_pdf(filepath)
+        text = format_card_for_telegram(card)
+        response["status"] = "success"
+        response["data"] = {"text": text}
+
+    elif message_body.get("type") == "teach":
+        text = payload.get("text", "")
+        card = await pipeline.process_text(text)
+        formatted = format_card_for_telegram(card)
+        response["status"] = "success"
+        response["data"] = {"text": formatted}
     return response
 
 async def main():

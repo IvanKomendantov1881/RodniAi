@@ -87,6 +87,12 @@ func main() {
 func formatResult(r queue.ResultMessage) string {
 	switch r.Status {
 	case "success":
+		// Для pdf/audio/teach — просто возвращаем text
+		if data, ok := r.Data.(map[string]any); ok {
+			if text, ok := data["text"].(string); ok && text != "" {
+				return text
+			}
+		}
 		switch r.Action {
 		case "add_word":
 			if data, ok := r.Data.(map[string]any); ok {
