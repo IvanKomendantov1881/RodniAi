@@ -10,11 +10,14 @@ card_generator.py
 
 import json
 import re
-
+import os
+from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
+load_dotenv()
+
 FREELLM_BASE_URL = "http://localhost:3001/v1"
-FREELLM_API_KEY  = "freellmapi-20add6e49faff1192ead9608dd69bd2b72610638c6a2e748"
+FREELLM_API_KEY  = token = os.getenv('FREELLM_API_KEY')
 MODEL = "auto"
 
 _client = None
